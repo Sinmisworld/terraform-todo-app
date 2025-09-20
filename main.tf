@@ -3,6 +3,52 @@ provider "aws" {
 }
 
 # ------------------------------
+# IAM Role for EC2
+# ------------------------------
+resource "aws_iam_role" "todo_app_role" {
+  name = "todo-app-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        }
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy" "todo_app_policy" {
+  name = "todo-app-policy"
+  role = aws_iam_role.todo_app_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "dynamodb:GetItem",
+          "dynamodb:PutItem",
+          "dynamodb:Scan",
+          "dynamodb:DeleteItem"
+        ]
+        Resource = aws_dynamodb_table.todo_table.arn
+      }
+    ]
+  })
+}
+
+resource "aws_iam_instance_profile" "todo_app_profile" {
+  name = "todo-app-profile"
+  role = aws_iam_role.todo_app_role.name
+}
+
+# ------------------------------
 # DynamoDB Table
 # ------------------------------
 resource "aws_dynamodb_table" "todo_table" {
@@ -15,8 +61,6 @@ resource "aws_dynamodb_table" "todo_table" {
     name = "id"
     type = "S"
   }
-
-  # TODO: Add another attribute if you want (check docs)
 }
 
 # ------------------------------
@@ -26,21 +70,82 @@ resource "aws_security_group" "todo_sg" {
   name        = "todo-sg"
   description = "Allow SSH and HTTP"
 
-  # TODO: Add ingress for SSH (22)
-  # TODO: Add ingress for HTTP (5000)
-  # TODO: Add egress for all outbound traffic
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 5000
+    to_port     = 5000
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 }
 
 # ------------------------------
 # EC2 Instance
 # ------------------------------
 resource "aws_instance" "todo_app" {
-  # TODO: Add AMI (Amazon Linux 2)
-  # TODO: Add instance_type (t2.micro)
-  # TODO: Attach security group
-  # TODO: Add user_data to install Flask app
+  ami           = "ami-0254b2d5c4c472488" # Amazon Linux 2 AMI (us-east-1)
+  instance_type = "t2.micro"
+  key_name      = "todo-app-key"
+  iam_instance_profile = aws_iam_instance_profile.todo_app_profile.name
+  security_groups = [aws_security_group.todo_sg.name]
+
+  user_data = <<-EOF
+              #!/bin/bash
+              
+              # Update the system
+              yum update -y
+              
+              # Install Python 3 and Git
+              yum install -y python3 git
+              
+              # Install Flask and Boto3 (AWS SDK)
+              pip3 install flask boto3
+              
+              # Go to the home directory
+              cd /home/ec2-user
+              
+              # Download the todo app code from GitHub
+              git clone https://github.com/sinmisworld/terraform-todo-app.git
+              
+              # Go into the app folder
+              cd terraform-todo-app/app
+              
+              # Start the Flask app
+              python3 app.py &
+              EOF
 
   tags = {
     Name = "ToDoAppServer"
   }
+}
+
+# ------------------------------
+# Outputs
+# ------------------------------
+output "instance_public_ip" {
+  description = "Public IP address of the EC2 instance"
+  value       = aws_instance.todo_app.public_ip
+}
+
+output "application_url" {
+  description = "URL to access the Todo application"
+  value       = "http://${aws_instance.todo_app.public_ip}:5000"
+}
+
+output "ssh_connection_command" {
+  description = "SSH command to connect to the instance"
+  value       = "ssh -i ~/.ssh/todo-app-key.pem ec2-user@${aws_instance.todo_app.public_ip}"
 }
