@@ -1,5 +1,6 @@
 provider "aws" {
   region = "us-east-1"
+  profile = "terraform-workshop" #USER_SPECIFIC
 }
 
 # ------------------------------
@@ -98,7 +99,7 @@ resource "aws_security_group" "todo_sg" {
 resource "aws_instance" "todo_app" {
   ami           = "ami-0254b2d5c4c472488" # Amazon Linux 2 AMI (us-east-1)
   instance_type = "t2.micro"
-  key_name      = "todo-app-key"
+  key_name      = "terraform-connectivity" #USER_SPECIFIC
   iam_instance_profile = aws_iam_instance_profile.todo_app_profile.name
   security_groups = [aws_security_group.todo_sg.name]
 
