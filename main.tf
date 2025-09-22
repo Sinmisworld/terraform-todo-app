@@ -1,5 +1,6 @@
 provider "aws" {
-  region = var.region
+  region = "us-east-1"
+  profile = "YOUR-PROFILE-NAME" #USER_SPECIFIC
 }
 
 # ------------------------------
@@ -96,10 +97,16 @@ resource "aws_security_group" "todo_sg" {
 # EC2 Instance
 # ------------------------------
 resource "aws_instance" "todo_app" {
+<<<<<<< HEAD
   ami           = "# To-Do: string (AMI ID)"
   instance_type = var.instance_type
   key_name      = "# To-Do: string (EC2 key pair name)"
 
+=======
+  ami           = "ami-0254b2d5c4c472488" # Amazon Linux 2 AMI (us-east-1)
+  instance_type = "t2.micro"
+  key_name      = "YOUR-KEY-PAIR-NAME" #USER_SPECIFIC
+>>>>>>> f5d87ec91a81c08dc26d36f081453092d499e911
   iam_instance_profile = aws_iam_instance_profile.todo_app_profile.name
   security_groups      = [aws_security_group.todo_sg.name]
 
