@@ -1,23 +1,95 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>To-Do App</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo App</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>My To-Do List</h1>
+    <div class="theme-toggle">
+        <button id="theme-btn" class="theme-btn" title="Toggle theme">
+            <i class="fas fa-moon"></i>
+        </button>
+    </div>
 
-    <form action="/add" method="post">
-        <input type="text" name="task" placeholder="Enter a task" required>
-        <button type="submit">Add</button>
-    </form>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-clipboard-list"></i> Todo App</h1>
+            <p>Stay organized and productive</p>
+        </div>
 
-    <ul>
-    {% for item in items %}
-        <li>{{ item['task'] }} 
-            <a href="/delete/{{ item['id'] }}">❌</a>
-        </li>
-    {% endfor %}
-    </ul>
+        <div class="add-todo-card">
+            <form method="POST" action="/add" class="add-form">
+                <div class="input-group">
+                    <input type="text" name="task" placeholder="What needs to be done?" required>
+                    <button type="submit" class="add-btn">
+                        <i class="fas fa-plus"></i>
+                        Add Task
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="todos-grid">
+            {% for item in items %}
+            <div class="todo-card">
+                <div class="todo-content">
+                    <div class="todo-icon">
+                        <i class="fas fa-sticky-note"></i>
+                    </div>
+                    <div class="todo-text">{{ item.task }}</div>
+                </div>
+                <a href="/delete/{{ item.id }}" class="delete-btn" title="Delete task">
+                    <i class="fas fa-trash"></i>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% if not items %}
+        <div class="empty-state">
+            <div class="empty-icon">
+                <i class="fas fa-clipboard-check"></i>
+            </div>
+            <h3>No tasks yet</h3>
+            <p>Add your first task above to get started!</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p>AWS Cloud Clubs at University of Texas at Dallas | Property of UTD</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const themeBtn = document.getElementById('theme-btn');
+            const body = document.body;
+            const icon = themeBtn.querySelector('i');
+            
+            // Load saved theme
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            if (savedTheme === 'dark') {
+                body.classList.add('dark');
+                icon.className = 'fas fa-sun';
+            }
+            
+            // Theme toggle functionality
+            themeBtn.addEventListener('click', function() {
+                body.classList.toggle('dark');
+                const isDark = body.classList.contains('dark');
+                
+                // Update icon
+                icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+                
+                // Save theme preference
+                localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            });
+        });
+    </script>
 </body>
 </html>
