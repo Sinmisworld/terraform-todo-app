@@ -4,7 +4,7 @@ import uuid
 
 app = Flask(__name__)
 dynamodb = boto3.resource("dynamodb", region_name="us-east-1")
-table = dynamodb.Table("todo-items")
+table = dynamodb.Table("todo-table")
 
 @app.route("/")
 def index():
