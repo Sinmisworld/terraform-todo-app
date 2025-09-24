@@ -1,6 +1,6 @@
 provider "aws" {
-  region  = var.region
-  profile = "dev-admin"
+  region = var.region
+  profile = "# To-Do 'YOUR-PROFILE-NAME'"
 }
 
 # ------------------------------
@@ -53,14 +53,14 @@ resource "aws_iam_instance_profile" "todo_app_profile" {
 # DynamoDB Table
 # ------------------------------
 resource "aws_dynamodb_table" "todo_table" {
-  name         = "todo-table"
-  billing_mode = "PAY_PER_REQUEST"
+  name         = "# To-Do: string (table name)"
+  billing_mode = "# To-Do: string (e.g. PAY_PER_REQUEST)"
 
-  hash_key = "id"
+  hash_key = "# To-Do: string (partition key name)"
 
   attribute {
-    name = "id"
-    type = "S"
+    name = "# To-Do: string (attribute name)"
+    type = "# To-Do: string (attribute type, e.g. S for string)"
   }
 }
 
@@ -68,28 +68,28 @@ resource "aws_dynamodb_table" "todo_table" {
 # Security Group for EC2
 # ------------------------------
 resource "aws_security_group" "todo_sg" {
-  name        = "todo-sg"
-  description = "Allow SSH and Flask app traffic"
+  name        = "# To-Do: string (SG name)"
+  description = "# To-Do: string (SG description)"
 
   ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    from_port   = # To-Do: number (port to allow)
+    to_port     = # To-Do: number (port to allow)
+    protocol    = "# To-Do: string (protocol, e.g. tcp)"
+    cidr_blocks = ["# To-Do: string (CIDR range, e.g. 0.0.0.0/0)"]
   }
 
   ingress {
-    from_port   = 5000
-    to_port     = 5000
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    from_port   = # To-Do: number (port to allow)
+    to_port     = # To-Do: number (port to allow)
+    protocol    = "# To-Do: string (protocol, e.g. tcp)"
+    cidr_blocks = ["# To-Do: string (CIDR range, e.g. 0.0.0.0/0)"]
   }
 
   egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+    from_port   = # To-Do: number (start port, often 0)
+    to_port     = # To-Do: number (end port, often 0)
+    protocol    = "# To-Do: string (protocol, e.g. -1 for all)"
+    cidr_blocks = ["# To-Do: string (CIDR range, e.g. 0.0.0.0/0)"]
   }
 }
 
@@ -97,9 +97,9 @@ resource "aws_security_group" "todo_sg" {
 # EC2 Instance
 # ------------------------------
 resource "aws_instance" "todo_app" {
-  ami           = "ami-0254b2d5c4c472488" # Example Amazon Linux 2 AMI ID (update per region)
+  ami           = "# To-Do: string (AMI ID)"
   instance_type = var.instance_type
-  key_name      = "todo-app-key"
+  key_name      = "# To-Do: string (EC2 key pair name)"
 
   iam_instance_profile = aws_iam_instance_profile.todo_app_profile.name
   security_groups      = [aws_security_group.todo_sg.name]
@@ -117,18 +117,13 @@ resource "aws_instance" "todo_app" {
               EOF
 
   tags = {
-    Name = "todo-app-instance"
+    Name = "# To-Do: string (tag name for EC2 instance)"
   }
 }
 
 # ------------------------------
 # Outputs
 # ------------------------------
-output "instance_public_ip" {
-  description = "Public IP address of the EC2 instance"
-  value       = aws_instance.todo_app.public_ip
-}
-
 output "application_url" {
   description = "URL to access the Todo application"
   value       = "http://${aws_instance.todo_app.public_ip}:5000"
@@ -136,5 +131,6 @@ output "application_url" {
 
 output "ssh_connection_command" {
   description = "SSH command to connect to the instance"
-  value       = "ssh -i ~/.ssh/todo-app-key.pem ec2-user@${aws_instance.todo_app.public_ip}"
+  value       = "ssh -i Drive:Path/To/PEM_file.pem ec2-user@${aws_instance.todo_app.public_ip}"
 }
+

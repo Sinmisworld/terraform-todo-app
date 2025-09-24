@@ -1,0 +1,4 @@
+command to find us-east 1 AMI: aws ec2 describe-images --region us-east-1 --owners amazon --filters "Name=name,Values=amzn2-ami-hvm-*-x86_64-gp2" --query "sort_by(Images, &CreationDate)[-1].ImageId" --output text
+
+# Error log
+cat /home/ec2-user/app.log
