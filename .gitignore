@@ -75,3 +75,10 @@ logs/
 # Temporary files
 *.tmp
 *.temp
+
+# SSH keys and certificates
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx

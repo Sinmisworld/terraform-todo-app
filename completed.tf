@@ -1,6 +1,6 @@
 provider "aws" {
-  region = var.region
-  profile = "your-profile-name"
+  region  = var.region
+  profile = "dev-admin"
 }
 
 # ------------------------------
@@ -97,9 +97,9 @@ resource "aws_security_group" "todo_sg" {
 # EC2 Instance
 # ------------------------------
 resource "aws_instance" "todo_app" {
-  ami           = "ami-0c55b159cbfafe1f0" # Example Amazon Linux 2 AMI ID (update per region)
+  ami           = "ami-0254b2d5c4c472488" # Example Amazon Linux 2 AMI ID (update per region)
   instance_type = var.instance_type
-  key_name      = "my-key-pair" # Replace with your key name
+  key_name      = "todo-app-key"
 
   iam_instance_profile = aws_iam_instance_profile.todo_app_profile.name
   security_groups      = [aws_security_group.todo_sg.name]
@@ -112,7 +112,8 @@ resource "aws_instance" "todo_app" {
               cd /home/ec2-user
               git clone https://github.com/sinmisworld/terraform-todo-app.git
               cd terraform-todo-app/app
-              python3 app.py &
+              # Use nohup to run the app in the background and log its output
+              nohup python3 app.py > /home/ec2-user/app.log 2>&1 &
               EOF
 
   tags = {
@@ -135,5 +136,5 @@ output "application_url" {
 
 output "ssh_connection_command" {
   description = "SSH command to connect to the instance"
-  value       = "ssh -i ~/.ssh/my-key-pair.pem ec2-user@${aws_instance.todo_app.public_ip}"
+  value       = "ssh -i ~/.ssh/todo-app-key.pem ec2-user@${aws_instance.todo_app.public_ip}"
 }
