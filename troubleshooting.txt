@@ -1,21 +1,37 @@
-# Install Homebrew [MACOS]
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-
-# Verify Homebrew installation 
-brew --version
-
-# Installing terraform [MACOS]
-brew tap hashicorp/tap
-brew install hashicorp/tap/terraform
-
-# Verify installation [MACOS - terraform]
-
 # Verify user aws profile
 aws sts get-caller-identity
-
 
 # Command to find us-east 1 AMI: 
 aws ec2 describe-images --region us-east-1 --owners amazon --filters "Name=name,Values=amzn2-ami-hvm-*-x86_64-gp2" --query "sort_by(Images, &CreationDate)[-1].ImageId" --output text
 
-# Error log
-cat /home/ec2-user/app.log
+
+# If you are facing internal server error, follow the below steps. 
+1.  Try to SSH into your server. Copy and paste the command you get after you run 
+    Terraform apply [something like - ssh -i Drive:Path/To/PEM_file.pem ec2-user@${aws_instance.todo_app.public_ip}]
+
+    If you get bad permission error, follow Fix SSH Private Key Permissions Error (Windows) attached below
+2.  Once successfully into the server, you can see a bird icon. Then type in 
+    # Error log
+    cat /home/ec2-user/app.log
+
+3.  If it's boto3 exception, the main.tf file has been modified to handle that error. If its 
+    something else, try reaching out to AWS officers or use online AI tools to debug the error.
+
+# Fix SSH Private Key Permissions Error (Windows)
+# Problem: "Bad permissions. Try removing permissions for user: BUILTIN\Users"
+# Solution steps:
+
+# Step 1: Navigate to directory with PEM file
+cd d:\AWS\utdxaws\terraform-todo-app
+
+# Step 2: Remove inherited permissions
+icacls "utdxaws-key.pem" /inheritance:r
+
+# Step 3: Grant read-only access to current user
+icacls "utdxaws-key.pem" /grant:r "${env:USERNAME}:(R)"
+
+# Step 4: Remove BUILTIN\Users permission
+icacls "utdxaws-key.pem" /remove "BUILTIN\Users"
+
+# Step 5: Verify permissions are correct
+icacls "utdxaws-key.pem"

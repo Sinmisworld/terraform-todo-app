@@ -104,6 +104,8 @@ resource "aws_instance" "todo_app" {
   iam_instance_profile = aws_iam_instance_profile.todo_app_profile.name
   security_groups      = [aws_security_group.todo_sg.name]
 
+  depends_on = [aws_iam_role_policy.todo_app_policy]
+
   user_data = <<-EOF
               #!/bin/bash
               yum update -y
