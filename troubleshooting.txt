@@ -5,6 +5,9 @@ aws sts get-caller-identity
 aws ec2 describe-images --region us-east-1 --owners amazon --filters "Name=name,Values=amzn2-ami-hvm-*-x86_64-gp2" --query "sort_by(Images, &CreationDate)[-1].ImageId" --output text
 
 
+# Make sure your EC2 key-pair is in us-east-1 region. Paste the below commad and replace the <KEY_NAME> with your key-pair name
+aws ec2 describe-key-pairs --key-names <KEY_NAME> --region us-east-1
+
 # If you are facing internal server error, follow the below steps. 
 1.  Try to SSH into your server. Copy and paste the command you get after you run 
     Terraform apply [something like - ssh -i Drive:Path/To/PEM_file.pem ec2-user@${aws_instance.todo_app.public_ip}]
